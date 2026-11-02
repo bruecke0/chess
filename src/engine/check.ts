@@ -51,12 +51,34 @@ export function getLegalMoves(state: GameState, pos: Position): Position[]{
     const piece = getPiece(state.board, pos);
     if (piece === null){ return [] };
 
-    const canditates = getMoves(state, pos);
-
-    return canditates.filter(move => {
+    const candidates = getMoves(state, pos);
+    const row = piece.color === 'w' ? 7 : 0;
+    const enemy = piece.color === 'w' ? 'b' : 'w';
+    const legal = candidates.filter(move => {
         const next = movePiece(state.board, pos, move);
         return !isInCheck(next, piece.color)
     })
+    if (piece.type === 'k' && pos.row === row && pos.col === 4 && !isInCheck(state.board, piece.color)){
+        const canKingSide = piece.color === 'w' ? state.castling.wK : state.castling.bK;
+        const canQueenSide = piece.color === 'w' ? state.castling.wQ : state.castling.bQ;
+        const fEmpty = getPiece(state.board, { row, col: 5 }) === null;
+        const gEmpty = getPiece(state.board, { row, col: 6 }) === null;
+        const fSafe = !isSquareAttacked(state.board, { row, col: 5 }, enemy);
+        const gSafe = !isSquareAttacked(state.board, { row, col: 6 }, enemy);
+        const bEmpty = getPiece(state.board, { row, col: 1}) === null;
+        const cEmpty = getPiece(state.board, { row, col: 2}) === null;
+        const dEmpty = getPiece(state.board, { row, col: 3}) === null;
+        const cSafe = !isSquareAttacked(state.board, { row, col: 2}, enemy);
+        const dSafe = !isSquareAttacked(state.board, { row, col: 3}, enemy);
+
+        if (canKingSide && fEmpty && gEmpty && fSafe && gSafe){
+            legal.push({ row, col: 6})
+        }
+        if (canQueenSide && bEmpty && cEmpty && dEmpty && cSafe && dSafe){
+            legal.push({ row, col: 2})
+        }
+    }
+    return legal;
 }
 
 export function hasLegalMoves(state: GameState): boolean{

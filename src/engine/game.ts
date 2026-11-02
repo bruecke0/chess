@@ -13,7 +13,15 @@ export function applyMove(state: GameState, from: Position, to: Position): GameS
     const newBoard = movePiece(state.board, from, to);
     const piece = getPiece(state.board, from);
     if (piece !== null && piece.type === 'k' && Math.abs(to.col - from.col) === 2){
-        let row = from.row;
+        const row = from.row;
+        if (to.col === 6){
+            newBoard[row][5] = newBoard[row][7];
+            newBoard[row][7] = null;
+        }
+        else if (to.col === 2){
+            newBoard[row][3] = newBoard[row][0];
+            newBoard[row][0] = null;
+        }
     }
     if (piece !== null && piece.type === 'p' && from.col !== to.col && getPiece(state.board, to) === null){
         newBoard[from.row][to.col] = null;
