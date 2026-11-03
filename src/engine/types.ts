@@ -24,4 +24,6 @@ export type GameState = {
     board: Board; 
     turn: Color; 
     castling: CastlingRights; 
-    enPassant: Position | null;}
+    enPassant: Position | null;
+    halfmoveClock: number;
+}

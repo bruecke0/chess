@@ -38,7 +38,7 @@ export function isSquareAttacked(board: Board, target: Position, byColor: Color)
     return false;
 }
 
-export function isInCheck(board: Board, color: Color){
+export function isInCheck(board: Board, color: Color): Boolean{
     const king = findKing(board, color);
     const enemy = color === 'w' ? 'b' : 'w';
     if (king === null){

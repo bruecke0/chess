@@ -4,6 +4,7 @@ import { renderBoard } from "./ui/render";
 import type { Position, GameState } from './engine/types';
 import { getLegalMoves, hasLegalMoves, isInCheck } from './engine/check';
 import { applyMove } from './engine/game';
+import { isInsufficientMaterial } from './engine/draw';
 
 const app = document.getElementById('app')!;
 const status = document.getElementById('status')!;
@@ -16,6 +17,7 @@ let state: GameState = {
   turn: 'w',
   castling: { wK: true, wQ: true, bK: true, bQ: true},
   enPassant: null,
+  halfmoveClock: 0,
 };
 
 function handleClick(pos: Position): void {
@@ -31,6 +33,15 @@ function handleClick(pos: Position): void {
       const ok = legal.some(m => m.row === pos.row && m.col === pos.col);
       if (ok){
         state = applyMove(state, selected, pos);
+        const insufficientMaterial = isInsufficientMaterial(state.board);
+        if (insufficientMaterial){
+          status.textContent = 'DRAW: insufficient material';
+          gameOver = true;
+        }
+        if (state.halfmoveClock >= 100){
+          gameOver = true;
+          status.textContent = 'DRAW: 50-move rule'
+        }
         const canMove = hasLegalMoves(state);
         const inCheck = isInCheck(state.board, state.turn);
         if (!canMove && inCheck){

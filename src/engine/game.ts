@@ -44,6 +44,15 @@ export function applyMove(state: GameState, from: Position, to: Position): GameS
             row: (from.row + to.row) / 2, col: from.col
         }
     }
+    const isCapture = getPiece(state.board, to) !== null;
+    const newClock = (piece !== null && piece.type === 'p') || isCapture ? 0 : state.halfmoveClock + 1;
     const newTurn : Color = state.turn === 'w' ? 'b' : 'w';
-    return { ...state, board: newBoard, turn: newTurn, enPassant: newEnPassant, castling: newCastling}
+    return { 
+        ...state, 
+        board: newBoard, 
+        turn: newTurn, 
+        enPassant: newEnPassant, 
+        castling: newCastling, 
+        halfmoveClock: newClock
+    }
 }
