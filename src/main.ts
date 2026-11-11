@@ -1,24 +1,27 @@
 import './style.css'
-import { createInitialBoard, getPiece } from "./engine/board";
+import { getPiece } from "./engine/board";
 import { renderBoard } from "./ui/render";
-import type { Position, GameState } from './engine/types';
+import type { Position } from './engine/types';
 import { getLegalMoves, hasLegalMoves, isInCheck } from './engine/check';
-import { applyMove } from './engine/game';
+import { applyMove, createInitialState } from './engine/game';
 import { isInsufficientMaterial } from './engine/draw';
 
 const app = document.getElementById('app')!;
 const status = document.getElementById('status')!;
+const restartBtn = document.getElementById('restart')!;
 
 let selected: Position | null = null;
 let gameOver = false;
 
-let state: GameState = {
-  board: createInitialBoard(),
-  turn: 'w',
-  castling: { wK: true, wQ: true, bK: true, bQ: true},
-  enPassant: null,
-  halfmoveClock: 0,
-};
+let state = createInitialState();
+
+function restart(): void{
+  state = createInitialState();
+  selected = null;
+  gameOver = false;
+
+  draw();
+}
 
 function handleClick(pos: Position): void {
   if (gameOver) return;
@@ -59,8 +62,14 @@ function handleClick(pos: Position): void {
   draw();
 }
 
+restartBtn.addEventListener('click', restart);
+
 function draw(): void{
-  renderBoard(state.board, app, handleClick, selected);
+  let targets: Position[] = [];
+  if (selected !== null && !gameOver){
+    targets = getLegalMoves(state, selected);
+  }
+  renderBoard(state.board, app, handleClick, selected, targets);
   if (!gameOver){
     status.textContent = state.turn === 'w' ? 'White to move' : 'Black to move';
     if (isInCheck(state.board, state.turn)) status.append(" CHECK");

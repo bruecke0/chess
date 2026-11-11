@@ -1,4 +1,4 @@
-import { getPiece, movePiece } from "./board";
+import { createInitialBoard, getPiece, movePiece } from "./board";
 import type { GameState, Position, Color, CastlingRights } from "./types";
 
 
@@ -55,4 +55,14 @@ export function applyMove(state: GameState, from: Position, to: Position): GameS
         castling: newCastling, 
         halfmoveClock: newClock
     }
+}
+
+export function createInitialState(): GameState{
+    return {
+      board: createInitialBoard(),
+      turn: 'w',
+      castling: { wK: true, wQ: true, bK: true, bQ: true},
+      enPassant: null,
+      halfmoveClock: 0,
+    }; 
 }

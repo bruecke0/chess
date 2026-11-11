@@ -11,6 +11,7 @@ export function renderBoard(
     container: HTMLElement, 
     onSquareClick: (pos: Position) => void,
     selected: Position | null,
+    targets: Position[],
 ): void {
     container.innerHTML = '';
 
@@ -27,6 +28,9 @@ export function renderBoard(
             }
             if (selected && selected.row === row && selected.col === col) {
                 square.classList.add('selected');
+            }
+            if (targets.some(t => t.row === row && t.col === col)){
+                square.classList.add('target')
             }
             square.addEventListener('click', () => onSquareClick({ row, col }));
             const isLight = (row + col) % 2 === 0;
