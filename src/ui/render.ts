@@ -27,6 +27,20 @@ export function renderBoard(
             if (piece) {
                 square.textContent = SYMBOLS[piece.color][piece.type] + '\uFE0E';
             }
+            if (col === 0) {
+                    const rankLabel = document.createElement('span');
+                    rankLabel.textContent = String(8 - row);
+                    rankLabel.className = 'rank-label';
+                    square.appendChild(rankLabel);
+                }
+
+            if (row === 7) {
+                    const fileLabel = document.createElement('span');
+                    fileLabel.textContent = 'abcdefgh'[col];
+                    fileLabel.className = 'file-label';
+                    square.appendChild(fileLabel);
+                }
+                
             if (selected && selected.row === row && selected.col === col) {
                 square.classList.add('selected');
             }
