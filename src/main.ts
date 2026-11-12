@@ -12,7 +12,8 @@ const restartBtn = document.getElementById('restart')!;
 const promotionE1 = document.getElementById('promotion')!;
 
 let selected: Position | null = null;
-let pendingPromotion : { from: Position; to: Position } | null = null;
+let pendingPromotion: { from: Position; to: Position } | null = null;
+let lastMove: { from: Position; to: Position } | null = null;
 let gameOver = false;
 
 let state = createInitialState();
@@ -22,12 +23,13 @@ function restart(): void{
   selected = null;
   gameOver = false;
   pendingPromotion = null;
-
+  lastMove = null;
   draw();
 }
 
 function playMove(from: Position, to: Position, promotion?: PieceType): void{
   state = applyMove(state, from, to, promotion);
+  lastMove = { from, to };
   const insufficientMaterial = isInsufficientMaterial(state.board);
   if (insufficientMaterial){
     status.textContent = 'DRAW: insufficient material';
@@ -92,7 +94,7 @@ function draw(): void{
   if (selected !== null && !gameOver){
     targets = getLegalMoves(state, selected);
   }
-  renderBoard(state.board, app, handleClick, selected, targets);
+  renderBoard(state.board, app, handleClick, selected, targets, lastMove);
   if (!gameOver){
     status.textContent = state.turn === 'w' ? 'White to move' : 'Black to move';
     if (isInCheck(state.board, state.turn)) status.append(" CHECK");

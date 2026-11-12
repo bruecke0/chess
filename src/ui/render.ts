@@ -12,6 +12,7 @@ export function renderBoard(
     onSquareClick: (pos: Position) => void,
     selected: Position | null,
     targets: Position[],
+    lastMove: { from: Position; to: Position} | null,
 ): void {
     container.innerHTML = '';
 
@@ -31,6 +32,13 @@ export function renderBoard(
             }
             if (targets.some(t => t.row === row && t.col === col)){
                 square.classList.add('target')
+            }
+            if (
+                lastMove && 
+                ((lastMove.from.row === row && lastMove.from.col === col) || 
+                (lastMove.to.row === row && lastMove.to.col === col))
+            ) {
+                square.classList.add('last-move');
             }
             square.addEventListener('click', () => onSquareClick({ row, col }));
             const isLight = (row + col) % 2 === 0;
