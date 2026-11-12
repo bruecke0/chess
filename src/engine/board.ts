@@ -51,7 +51,7 @@ export function getPiece(board: Board, pos: Position): Square{
 
 }
 
-export function  movePiece(board: Board, from: Position, to: Position): Board {
+export function  movePiece(board: Board, from: Position, to: Position, promotion: PieceType = 'q'): Board {
     //TODO: clone, copy piece to 'to', set 'from' to null, return the clone
     const newBoard = cloneBoard(board);
 
@@ -61,7 +61,7 @@ export function  movePiece(board: Board, from: Position, to: Position): Board {
     newBoard[to.row][to.col] = piece;
     const lastRow = piece.color === 'w' ? 0 : 7;
     if (piece.type === 'p' && to.row === lastRow){
-        const newPiece: Piece = { color: piece.color, type: 'q'};
+        const newPiece: Piece = { color: piece.color, type: promotion};
         newBoard[to.row][to.col] = newPiece;
     }
     newBoard[from.row][from.col] = null;

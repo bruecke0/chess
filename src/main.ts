@@ -11,6 +11,7 @@ const status = document.getElementById('status')!;
 const restartBtn = document.getElementById('restart')!;
 
 let selected: Position | null = null;
+let pendingPromotion : { from: Position; to: Position } | null = null;
 let gameOver = false;
 
 let state = createInitialState();
@@ -24,6 +25,7 @@ function restart(): void{
 }
 
 function handleClick(pos: Position): void {
+  if (pendingPromotion !== null) return;
   if (gameOver) return;
   if (selected === null) {
     const piece = getPiece(state.board, pos);
@@ -35,25 +37,32 @@ function handleClick(pos: Position): void {
       const legal = getLegalMoves(state, selected);
       const ok = legal.some(m => m.row === pos.row && m.col === pos.col);
       if (ok){
-        state = applyMove(state, selected, pos);
-        const insufficientMaterial = isInsufficientMaterial(state.board);
-        if (insufficientMaterial){
-          status.textContent = 'DRAW: insufficient material';
-          gameOver = true;
-        }
-        if (state.halfmoveClock >= 100){
-          gameOver = true;
-          status.textContent = 'DRAW: 50-move rule'
-        }
-        const canMove = hasLegalMoves(state);
-        const inCheck = isInCheck(state.board, state.turn);
-        if (!canMove && inCheck){
-          status.textContent = state.turn === 'w' ? 'CHECKMATE black won' : 'CHECKMATE white won';
-          gameOver = true;
-        }
-        else if (!canMove && !inCheck){
-          status.textContent = 'STALEMATE';
-          gameOver = true;
+        const piece = getPiece(state.board, selected);
+        const isPromotion = (
+          piece !== null && piece.type === 'p' && pos.row === (piece.color === 'w' ? 0 : 7));
+        if (isPromotion) {
+          pendingPromotion = { from: selected, to: pos };
+        } else {
+          state = applyMove(state, selected, pos);
+          const insufficientMaterial = isInsufficientMaterial(state.board);
+          if (insufficientMaterial){
+            status.textContent = 'DRAW: insufficient material';
+            gameOver = true;
+          }
+          if (state.halfmoveClock >= 100){
+            gameOver = true;
+            status.textContent = 'DRAW: 50-move rule'
+          }
+          const canMove = hasLegalMoves(state);
+          const inCheck = isInCheck(state.board, state.turn);
+          if (!canMove && inCheck){
+            status.textContent = state.turn === 'w' ? 'CHECKMATE black won' : 'CHECKMATE white won';
+            gameOver = true;
+          }
+          else if (!canMove && !inCheck){
+            status.textContent = 'STALEMATE';
+            gameOver = true;
+          }
         }
       }
       selected = null;

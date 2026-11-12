@@ -1,5 +1,5 @@
 import { createInitialBoard, getPiece, movePiece } from "./board";
-import type { GameState, Position, Color, CastlingRights } from "./types";
+import type { GameState, Position, Color, CastlingRights, PieceType } from "./types";
 
 
 function clearCorner(castling: CastlingRights, pos: Position): void{
@@ -9,8 +9,8 @@ function clearCorner(castling: CastlingRights, pos: Position): void{
     if(pos.row === 0 && pos.col === 7) castling.bK = false;
 }
 
-export function applyMove(state: GameState, from: Position, to: Position): GameState{
-    const newBoard = movePiece(state.board, from, to);
+export function applyMove(state: GameState, from: Position, to: Position, promotion: PieceType = 'q'): GameState{
+    const newBoard = movePiece(state.board, from, to, promotion);
     const piece = getPiece(state.board, from);
     if (piece !== null && piece.type === 'k' && Math.abs(to.col - from.col) === 2){
         const row = from.row;
