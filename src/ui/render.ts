@@ -40,3 +40,19 @@ export function renderBoard(
     }
     container.appendChild(boardE1);
 }
+
+export function renderPromotion(
+    container: HTMLElement,
+    color: Color,
+    onChoose: (type: PieceType) => void,
+): void {
+    container.innerHTML = '';
+    const choices : PieceType[] = ['q', 'r', 'b', 'n'];
+
+    for (const type of choices){
+        const button = document.createElement('button');
+        button.textContent = SYMBOLS[color][type] + '\uFE0E';
+        button.addEventListener('click', () => onChoose(type));
+        container.appendChild(button);
+    }
+}
