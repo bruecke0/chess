@@ -1,7 +1,7 @@
 import './style.css'
 import { getPiece } from "./engine/board";
 import { renderBoard, renderPromotion } from "./ui/render";
-import type { PieceType, Position } from './engine/types';
+import type { GameState, PieceType, Position } from './engine/types';
 import { getLegalMoves, hasLegalMoves, isInCheck } from './engine/check';
 import { applyMove, createInitialState } from './engine/game';
 import { isInsufficientMaterial } from './engine/draw';
@@ -10,13 +10,26 @@ const app = document.getElementById('app')!;
 const status = document.getElementById('status')!;
 const restartBtn = document.getElementById('restart')!;
 const promotionE1 = document.getElementById('promotion')!;
+const undoBtn = document.getElementById('undo')!;
 
 let selected: Position | null = null;
 let pendingPromotion: { from: Position; to: Position } | null = null;
 let lastMove: { from: Position; to: Position } | null = null;
 let gameOver = false;
+let history: { state: GameState; lastMove: { from: Position; to: Position } | null}[] = [];
 
 let state = createInitialState();
+
+function undo(): void{
+  const previous = history.pop();
+  if (previous === undefined) return;
+  state = previous.state;
+  lastMove = previous.lastMove;
+  selected = null;
+  gameOver = false;
+  pendingPromotion = null;
+  draw();
+}
 
 function restart(): void{
   state = createInitialState();
@@ -24,10 +37,12 @@ function restart(): void{
   gameOver = false;
   pendingPromotion = null;
   lastMove = null;
+  history = [];
   draw();
 }
 
 function playMove(from: Position, to: Position, promotion?: PieceType): void{
+  history.push({ state, lastMove});
   state = applyMove(state, from, to, promotion);
   lastMove = { from, to };
   const insufficientMaterial = isInsufficientMaterial(state.board);
@@ -80,6 +95,7 @@ function handleClick(pos: Position): void {
 }
 
 restartBtn.addEventListener('click', restart);
+undoBtn.addEventListener('click', undo);
 
 function choosePromotion(type: PieceType): void{
   if (pendingPromotion === null) return;
