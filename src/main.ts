@@ -1,22 +1,25 @@
 import './style.css'
 import { getPiece } from "./engine/board";
-import { renderBoard, renderPromotion } from "./ui/render";
+import { renderBoard, renderMoves, renderPromotion } from "./ui/render";
 import type { GameState, PieceType, Position } from './engine/types';
 import { getLegalMoves, hasLegalMoves, isInCheck } from './engine/check';
 import { applyMove, createInitialState } from './engine/game';
 import { isInsufficientMaterial } from './engine/draw';
+import { moveToSan } from './engine/notation';
 
 const app = document.getElementById('app')!;
 const status = document.getElementById('status')!;
 const restartBtn = document.getElementById('restart')!;
 const promotionE1 = document.getElementById('promotion')!;
 const undoBtn = document.getElementById('undo')!;
+const movesE1 = document.getElementById('moves')!;
 
 let selected: Position | null = null;
 let pendingPromotion: { from: Position; to: Position } | null = null;
 let lastMove: { from: Position; to: Position } | null = null;
 let gameOver = false;
 let history: { state: GameState; lastMove: { from: Position; to: Position } | null}[] = [];
+let moves: string[] = [];
 
 let state = createInitialState();
 
@@ -28,6 +31,7 @@ function undo(): void{
   selected = null;
   gameOver = false;
   pendingPromotion = null;
+  moves.pop();
   draw();
 }
 
@@ -38,12 +42,19 @@ function restart(): void{
   pendingPromotion = null;
   lastMove = null;
   history = [];
+  moves = [];
   draw();
 }
 
 function playMove(from: Position, to: Position, promotion?: PieceType): void{
+  console.log(moveToSan(state, from, to, promotion));
+  let san = moveToSan(state, from, to, promotion);
   history.push({ state, lastMove});
   state = applyMove(state, from, to, promotion);
+  if (isInCheck(state.board, state.turn)) {
+    san += hasLegalMoves(state) ? '+' : '#';
+  }
+  moves.push(san);
   lastMove = { from, to };
   const insufficientMaterial = isInsufficientMaterial(state.board);
   if (insufficientMaterial){
@@ -120,6 +131,7 @@ function draw(): void{
   } else {
     promotionE1.innerHTML = '';
   }
+  renderMoves(movesE1, moves);
 }
 
 draw();

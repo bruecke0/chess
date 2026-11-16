@@ -78,3 +78,16 @@ export function renderPromotion(
         container.appendChild(button);
     }
 }
+
+export function renderMoves(
+    container: HTMLElement, 
+    moves: string[]
+): void {
+    container.innerHTML = '';
+    for (let i = 0; i < moves.length; i+= 2) {
+        const line = document.createElement('div');
+        const number = i / 2 + 1;
+        line.textContent = `${number}. ${moves[i]} ${moves[i + 1] ?? ''}`;
+        container.appendChild(line);
+    }
+}
